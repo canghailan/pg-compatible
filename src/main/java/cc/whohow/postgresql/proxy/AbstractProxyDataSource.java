@@ -1,26 +1,28 @@
-package cc.whohow.postgresql;
+package cc.whohow.postgresql.proxy;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.sql.*;
-import java.util.function.Function;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Wrapper;
 import java.util.logging.Logger;
 
-public class PgCompatibleDataSource implements DataSource {
-    private final DataSource dataSource;
+public abstract class AbstractProxyDataSource implements DataSource, Wrapper {
+    protected final DataSource dataSource;
 
-    public PgCompatibleDataSource(DataSource dataSource) {
+    public AbstractProxyDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return new PgCompatibleConnection(dataSource.getConnection());
+        return dataSource.getConnection();
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return new PgCompatibleConnection(dataSource.getConnection(username, password));
+        return dataSource.getConnection(username, password);
     }
 
     @Override
@@ -34,13 +36,13 @@ public class PgCompatibleDataSource implements DataSource {
     }
 
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-        dataSource.setLoginTimeout(seconds);
+    public int getLoginTimeout() throws SQLException {
+        return dataSource.getLoginTimeout();
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
-        return dataSource.getLoginTimeout();
+    public void setLoginTimeout(int seconds) throws SQLException {
+        dataSource.setLoginTimeout(seconds);
     }
 
     @Override
@@ -49,25 +51,21 @@ public class PgCompatibleDataSource implements DataSource {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> iface) throws SQLException {
+        if (iface.isInstance(this)) {
+            return (T) this;
+        }
         return dataSource.unwrap(iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return dataSource.isWrapperFor(iface);
+        return iface.isInstance(this) || dataSource.isWrapperFor(iface);
     }
 
     @Override
     public String toString() {
         return dataSource.toString();
-    }
-
-    public void setPreparedStatementFormatter(Function<PreparedStatement, String> formatter) {
-        PgCompatiblePreparedStatement.formatter = formatter;
-    }
-
-    public void setCallableStatementFormatter(Function<CallableStatement, String> formatter) {
-        PgCompatibleCallableStatement.formatter = formatter;
     }
 }

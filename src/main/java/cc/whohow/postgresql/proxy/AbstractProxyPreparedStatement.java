@@ -1,60 +1,32 @@
-package cc.whohow.postgresql;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.postgresql.util.PGobject;
+package cc.whohow.postgresql.proxy;
 
 import java.io.InputStream;
 import java.io.Reader;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
-import java.util.function.Function;
 
-public class PgCompatiblePreparedStatement implements PreparedStatement {
-    static Function<PreparedStatement, String> formatter = PreparedStatement::toString;
+public abstract class AbstractProxyPreparedStatement implements PreparedStatement, Wrapper {
+    protected final PreparedStatement preparedStatement;
 
-    private static final Logger log = LogManager.getLogger("pg-statement");
-
-    private static final PGobject NULL = pgNull();
-    private final PreparedStatement preparedStatement;
-
-    public PgCompatiblePreparedStatement(PreparedStatement preparedStatement) {
+    public AbstractProxyPreparedStatement(PreparedStatement preparedStatement) {
         this.preparedStatement = preparedStatement;
-    }
-
-    private static PGobject pgNull() {
-        try {
-            PGobject pgNull = new PGobject();
-            pgNull.setType("varchar");
-            pgNull.setValue(null);
-            return pgNull;
-        } catch (SQLException e) {
-            throw new UndeclaredThrowableException(e);
-        }
     }
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        log.debug("{}", this);
         return preparedStatement.executeQuery();
     }
 
     @Override
     public int executeUpdate() throws SQLException {
-        log.debug("{}", this);
         return preparedStatement.executeUpdate();
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        if (sqlType == Types.VARBINARY || sqlType == Types.VARCHAR || sqlType == Types.LONGVARCHAR) {
-            preparedStatement.setObject(parameterIndex, NULL);
-        } else {
-            preparedStatement.setNull(parameterIndex, sqlType);
-        }
+        preparedStatement.setNull(parameterIndex, sqlType);
     }
 
     @Override
@@ -155,7 +127,6 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public boolean execute() throws SQLException {
-        log.debug("{}", this);
         return preparedStatement.execute();
     }
 
@@ -211,11 +182,7 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        if (sqlType == Types.VARBINARY || sqlType == Types.VARCHAR || sqlType == Types.LONGVARCHAR) {
-            preparedStatement.setObject(parameterIndex, NULL);
-        } else {
-            preparedStatement.setNull(parameterIndex, sqlType, typeName);
-        }
+        preparedStatement.setNull(parameterIndex, sqlType, typeName);
     }
 
     @Override
@@ -335,19 +302,16 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public long executeLargeUpdate() throws SQLException {
-        log.debug("{}", this);
         return preparedStatement.executeLargeUpdate();
     }
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeQuery(sql);
     }
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeUpdate(sql);
     }
 
@@ -413,7 +377,6 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.execute(sql);
     }
 
@@ -433,23 +396,23 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
     }
 
     @Override
-    public void setFetchDirection(int direction) throws SQLException {
-        preparedStatement.setFetchDirection(direction);
-    }
-
-    @Override
     public int getFetchDirection() throws SQLException {
         return preparedStatement.getFetchDirection();
     }
 
     @Override
-    public void setFetchSize(int rows) throws SQLException {
-        preparedStatement.setFetchSize(rows);
+    public void setFetchDirection(int direction) throws SQLException {
+        preparedStatement.setFetchDirection(direction);
     }
 
     @Override
     public int getFetchSize() throws SQLException {
         return preparedStatement.getFetchSize();
+    }
+
+    @Override
+    public void setFetchSize(int rows) throws SQLException {
+        preparedStatement.setFetchSize(rows);
     }
 
     @Override
@@ -464,7 +427,6 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public void addBatch(String sql) throws SQLException {
-        log.debug("{}", sql);
         preparedStatement.addBatch(sql);
     }
 
@@ -495,37 +457,31 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeUpdate(sql, autoGeneratedKeys);
     }
 
     @Override
     public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeUpdate(sql, columnIndexes);
     }
 
     @Override
     public int executeUpdate(String sql, String[] columnNames) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeUpdate(sql, columnNames);
     }
 
     @Override
     public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.execute(sql, autoGeneratedKeys);
     }
 
     @Override
     public boolean execute(String sql, int[] columnIndexes) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.execute(sql, columnIndexes);
     }
 
     @Override
     public boolean execute(String sql, String[] columnNames) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.execute(sql, columnNames);
     }
 
@@ -540,13 +496,13 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
     }
 
     @Override
-    public void setPoolable(boolean poolable) throws SQLException {
-        preparedStatement.setPoolable(poolable);
+    public boolean isPoolable() throws SQLException {
+        return preparedStatement.isPoolable();
     }
 
     @Override
-    public boolean isPoolable() throws SQLException {
-        return preparedStatement.isPoolable();
+    public void setPoolable(boolean poolable) throws SQLException {
+        preparedStatement.setPoolable(poolable);
     }
 
     @Override
@@ -565,13 +521,13 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
     }
 
     @Override
-    public void setLargeMaxRows(long max) throws SQLException {
-        preparedStatement.setLargeMaxRows(max);
+    public long getLargeMaxRows() throws SQLException {
+        return preparedStatement.getLargeMaxRows();
     }
 
     @Override
-    public long getLargeMaxRows() throws SQLException {
-        return preparedStatement.getLargeMaxRows();
+    public void setLargeMaxRows(long max) throws SQLException {
+        preparedStatement.setLargeMaxRows(max);
     }
 
     @Override
@@ -581,40 +537,40 @@ public class PgCompatiblePreparedStatement implements PreparedStatement {
 
     @Override
     public long executeLargeUpdate(String sql) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeLargeUpdate(sql);
     }
 
     @Override
     public long executeLargeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeLargeUpdate(sql, autoGeneratedKeys);
     }
 
     @Override
     public long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeLargeUpdate(sql, columnIndexes);
     }
 
     @Override
     public long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
-        log.debug("{}", sql);
         return preparedStatement.executeLargeUpdate(sql, columnNames);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T unwrap(Class<T> iface) throws SQLException {
+        if (iface.isInstance(this)) {
+            return (T) this;
+        }
         return preparedStatement.unwrap(iface);
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return preparedStatement.isWrapperFor(iface);
+        return iface.isInstance(this) || preparedStatement.isWrapperFor(iface);
     }
 
     @Override
     public String toString() {
-        return formatter.apply(preparedStatement);
+        return preparedStatement.toString();
     }
 }

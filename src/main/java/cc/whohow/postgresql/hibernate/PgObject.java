@@ -26,7 +26,7 @@ public class PgObject implements UserType, ParameterizedType {
 
     @Override
     public int[] sqlTypes() {
-        return new int[] { Types.VARCHAR };
+        return new int[]{Types.VARCHAR};
     }
 
     @Override

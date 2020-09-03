@@ -8,10 +8,10 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public abstract class AbstractProxyCallableStatement implements CallableStatement, Wrapper {
+public class WrapperCallableStatement implements CallableStatement, Wrapper {
     protected final CallableStatement callableStatement;
 
-    public AbstractProxyCallableStatement(CallableStatement callableStatement) {
+    public WrapperCallableStatement(CallableStatement callableStatement) {
         this.callableStatement = callableStatement;
     }
 

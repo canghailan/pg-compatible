@@ -7,10 +7,10 @@ import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
 
-public abstract class AbstractProxyPreparedStatement implements PreparedStatement, Wrapper {
+public abstract class WrapperPreparedStatement implements PreparedStatement, Wrapper {
     protected final PreparedStatement preparedStatement;
 
-    public AbstractProxyPreparedStatement(PreparedStatement preparedStatement) {
+    public WrapperPreparedStatement(PreparedStatement preparedStatement) {
         this.preparedStatement = preparedStatement;
     }
 

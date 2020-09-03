@@ -1,16 +1,11 @@
 package cc.whohow.postgresql.proxy;
 
-import javax.sql.DataSource;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 
-public interface Proxy {
-    default DataSource newProxyInstance(DataSource dataSource) {
-        return dataSource;
-    }
-
+public interface JdbcProxy {
     default Connection newProxyInstance(Connection connection) {
         return connection;
     }
@@ -25,5 +20,9 @@ public interface Proxy {
 
     default CallableStatement newProxyInstance(CallableStatement callableStatement) {
         return callableStatement;
+    }
+
+    default JdbcProxy andThen(JdbcProxy after) {
+        return new JdbcProxyChain(this, after);
     }
 }

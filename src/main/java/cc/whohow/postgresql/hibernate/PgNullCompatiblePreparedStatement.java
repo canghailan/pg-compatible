@@ -1,6 +1,6 @@
-package cc.whohow.postgresql;
+package cc.whohow.postgresql.hibernate;
 
-import cc.whohow.postgresql.proxy.AbstractProxyPreparedStatement;
+import cc.whohow.postgresql.proxy.WrapperPreparedStatement;
 import org.postgresql.util.PGobject;
 
 import java.lang.reflect.UndeclaredThrowableException;
@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class PgNullCompatiblePreparedStatement extends AbstractProxyPreparedStatement {
+public class PgNullCompatiblePreparedStatement extends WrapperPreparedStatement {
     private static final PGobject NULL = pgNull();
 
     public PgNullCompatiblePreparedStatement(PreparedStatement preparedStatement) {

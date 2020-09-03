@@ -2,10 +2,10 @@ package cc.whohow.postgresql.proxy;
 
 import java.sql.*;
 
-public class ProxyConnection extends AbstractProxyConnection {
-    protected final Proxy proxy;
+public class ProxyConnection extends WrapperConnection {
+    protected final JdbcProxy proxy;
 
-    public ProxyConnection(Connection connection, Proxy proxy) {
+    public ProxyConnection(Connection connection, JdbcProxy proxy) {
         super(connection);
         this.proxy = proxy;
     }

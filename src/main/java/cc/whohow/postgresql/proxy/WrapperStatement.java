@@ -2,10 +2,10 @@ package cc.whohow.postgresql.proxy;
 
 import java.sql.*;
 
-public abstract class AbstractProxyStatement implements Statement, Wrapper {
+public abstract class WrapperStatement implements Statement, Wrapper {
     protected final Statement statement;
 
-    public AbstractProxyStatement(Statement statement) {
+    public WrapperStatement(Statement statement) {
         this.statement = statement;
     }
 

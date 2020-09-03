@@ -8,10 +8,10 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Wrapper;
 import java.util.logging.Logger;
 
-public abstract class AbstractProxyDataSource implements DataSource, Wrapper {
+public abstract class WrapperDataSource implements DataSource, Wrapper {
     protected final DataSource dataSource;
 
-    public AbstractProxyDataSource(DataSource dataSource) {
+    public WrapperDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -52,16 +52,16 @@ public abstract class AbstractProxyDataSource implements DataSource, Wrapper {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        if (iface.isInstance(this)) {
+    public <T> T unwrap(Class<T> type) throws SQLException {
+        if (type.isInstance(this)) {
             return (T) this;
         }
-        return dataSource.unwrap(iface);
+        return dataSource.unwrap(type);
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return iface.isInstance(this) || dataSource.isWrapperFor(iface);
+    public boolean isWrapperFor(Class<?> type) throws SQLException {
+        return type.isInstance(this) || dataSource.isWrapperFor(type);
     }
 
     @Override
